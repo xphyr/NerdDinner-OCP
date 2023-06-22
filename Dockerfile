@@ -1,7 +1,20 @@
-#Depending on the operating system of the host machines(s) that will build or run the containers, the image specified in the FROM statement may need to be changed.
-#For more information, please see https://aka.ms/containercompat
+ARG BUILDER_IMAGE=mcr.microsoft.com/dotnet/framework/sdk:4.8
+ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2019
+ARG APPDIR=app
 
-FROM mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2022
-ARG source
+FROM ${BUILDER_IMAGE} AS build
+WORKDIR ${APPDIR}
+
+# copy csproj and restore as distinct layers
+COPY ./*.sln ./
+COPY ./*.csproj ./
+COPY ./*.config ./
+RUN nuget restore
+
+# copy everything else and build app
+COPY . ./
+RUN msbuild /p:Configuration=Release -r:False 
+
+FROM ${RUNTIME_IMAGE} AS runtime
 WORKDIR /inetpub/wwwroot
-COPY ${source:-obj/Docker/publish} .
+COPY --from build /${APPDIR}/. ./
