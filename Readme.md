@@ -15,6 +15,20 @@ The intent is to show that using Windows containers it is possible to run code t
 	* If you don't have a Windows 11 license, you can [Get a Windows 11 Development Environment](https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/), but you will need to enable Nested Virtualization within your VM platform
 	* It is possible to install Docker for Windows without Docker Desktop. See [Windows Containers on Windows 10 or 11, without Docker Desktop](https://xphyr.net/post/windows_containers_win11/) for alternative install options.
 
-## Building the Container
+## Building and Running the Container Locally
 
-This example is written and tested using the mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2022 base container. This container will run on Server 2022, but will NOT work on Server 2019.
+This example is written and tested using the mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2019 base container. 
+
+To build the Windows container from a PowerShell terminal:
+
+```
+docker build -t nd .
+```
+
+To run the start the Nerd Dinner application container:
+
+```
+docker run --name nerddinner -p 8000:80 nd
+```
+
+Once the application has started, use a web browser to open http://localhost:8000.
