@@ -24,7 +24,15 @@ COPY psscripts/LogMonitorConfig.json  /LogMonitor/
 
 WORKDIR /inetpub/wwwroot
 
-COPY --from=build /app/. ./
+# copy bin directory
+COPY --from=build /app/bin ./bin/
+
+# copy status assets for the web application
+COPY favicon.ico Global.asax packages.config Readme.md Web.config ./
+COPY Content ./Content/
+COPY Images ./Images/
+COPY Scripts ./Scripts/
+COPY Views ./Views/
 
 RUN .\psscripts\Set-WebConfigSettings.ps1 -webConfig C:\inetpub\wwwroot\Web.config
 
