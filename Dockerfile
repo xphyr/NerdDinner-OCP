@@ -34,6 +34,9 @@ COPY Images ./Images/
 COPY Scripts ./Scripts/
 COPY Views ./Views/
 
+# copy scripts
+COPY psscripts/*.ps1 ./psscripts/
+
 RUN .\psscripts\Set-WebConfigSettings.ps1 -webConfig C:\inetpub\wwwroot\Web.config
 
 RUN Install-WindowsFeature "Web-Windows-Auth", "Web-Asp-Net45"
