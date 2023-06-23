@@ -15,5 +15,20 @@ COPY . ./
 RUN msbuild /p:Configuration=Release -r:False 
 
 FROM ${RUNTIME_IMAGE} AS runtime
+ARG LOGMON_URL=https://github.com/microsoft/windows-container-tools/releases/download/v1.2/LogMonitor.exe
+
+# Install LogMonitor.exe
+RUN mkdir /LogMonitor
+ADD ${LOGMON_URL} /LogMonitor/LogMonitor.exe
+COPY psscripts/LogMonitorConfig.json  /LogMonitor/
+
 WORKDIR /inetpub/wwwroot
+
 COPY --from=build /app/. ./
+
+RUN .\psscripts\Set-WebConfigSettings.ps1 -webConfig C:\inetpub\wwwroot\Web.config
+
+RUN Install-WindowsFeature "Web-Windows-Auth", "Web-Asp-Net45"
+
+# SHELL ["C:\\LogMonitor\\LogMonitor.exe", "/CONFIG", "C:\\LogMonitor\\LogMonitorConfig.json", "powershell.exe"]
+ENTRYPOINT ["C:\\LogMonitor\\LogMonitor.exe", "/CONFIG", "C:\\LogMonitor\\LogMonitorConfig.json", "C:\\ServiceMonitor.exe", "w3svc"]
