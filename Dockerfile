@@ -1,5 +1,5 @@
 ARG BUILDER_IMAGE=mcr.microsoft.com/dotnet/framework/sdk:4.8
-ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2019
+ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2022
 
 FROM ${BUILDER_IMAGE} AS build
 WORKDIR /app
@@ -12,15 +12,15 @@ RUN nuget restore
 
 # copy everything else and build app
 COPY . ./
-RUN msbuild /p:Configuration=Release -r:False 
+RUN msbuild /p:Configuration=Release -r:False -m
 
 FROM ${RUNTIME_IMAGE} AS runtime
 ARG LOGMON_URL=https://github.com/microsoft/windows-container-tools/releases/download/v1.2/LogMonitor.exe
 
 # Install LogMonitor.exe
-RUN mkdir /LogMonitor
+RUN mkdir C:\LogMonitor
 ADD ${LOGMON_URL} /LogMonitor/LogMonitor.exe
-COPY psscripts/LogMonitorConfig.json  /LogMonitor/
+COPY psscripts/LogMonitorConfig.json /LogMonitor/
 
 WORKDIR /inetpub/wwwroot
 
@@ -37,9 +37,9 @@ COPY Views ./Views/
 # copy scripts
 COPY psscripts/*.ps1 ./psscripts/
 
-RUN .\psscripts\Set-WebConfigSettings.ps1 -webConfig C:\inetpub\wwwroot\Web.config
+RUN PowerShell C:\inetpub\wwwroot\psscripts\Set-WebConfigSettings.ps1 -webConfig C:\inetpub\wwwroot\Web.config
 
-RUN Install-WindowsFeature "Web-Windows-Auth", "Web-Asp-Net45"
+RUN PowerShell Install-WindowsFeature "Web-Windows-Auth", "Web-Asp-Net45"
 
 # SHELL ["C:\\LogMonitor\\LogMonitor.exe", "/CONFIG", "C:\\LogMonitor\\LogMonitorConfig.json", "powershell.exe"]
 ENTRYPOINT ["C:\\LogMonitor\\LogMonitor.exe", "/CONFIG", "C:\\LogMonitor\\LogMonitorConfig.json", "C:\\ServiceMonitor.exe", "w3svc"]
