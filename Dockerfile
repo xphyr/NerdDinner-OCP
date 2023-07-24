@@ -1,7 +1,7 @@
 # escape=`
 
 ARG BUILD_IMAGE=mcr.microsoft.com/dotnet/framework/sdk:4.8
-ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/framework/aspnet:4.8-20230622-windowsservercore-ltsc2022
+ARG RUNTIME_IMAGE=mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2022
 
 #
 #  Runtime Stage:
