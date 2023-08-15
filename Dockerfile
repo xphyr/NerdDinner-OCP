@@ -37,9 +37,12 @@ COPY Views ./Views/
 # copy scripts
 COPY psscripts/*.ps1 ./psscripts/
 
-RUN PowerShell C:\inetpub\wwwroot\psscripts\Set-WebConfigSettings.ps1 -webConfig C:\inetpub\wwwroot\Web.config
+# This cant be run here, this needs to be run at app init in the cluster
+# RUN PowerShell C:\inetpub\wwwroot\psscripts\Set-WebConfigSettings.ps1 -webConfig C:\inetpub\wwwroot\Web.config
 
 RUN PowerShell Install-WindowsFeature "Web-Windows-Auth", "Web-Asp-Net45"
 
-# SHELL ["C:\\LogMonitor\\LogMonitor.exe", "/CONFIG", "C:\\LogMonitor\\LogMonitorConfig.json", "powershell.exe"]
+#SHELL ["C:\\LogMonitor\\LogMonitor.exe", "/CONFIG", "C:\\LogMonitor\\LogMonitorConfig.json", "powershell.exe"]
 ENTRYPOINT ["C:\\LogMonitor\\LogMonitor.exe", "/CONFIG", "C:\\LogMonitor\\LogMonitorConfig.json", "C:\\ServiceMonitor.exe", "w3svc"]
+#CMD ["powershell.exe", "-file C:\\inetpub\\wwwroot\\psscripts\\Startup.ps1"]
+

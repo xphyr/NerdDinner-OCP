@@ -1,0 +1,28 @@
+name: CI Workflow
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  build-containers:
+    name: Build Containers
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 3
+      matrix:
+        os: [windows-2019, windows-2022]
+        include:
+        - os: windows-2019
+          runtimeimage: mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2019
+        - os: windows-2022
+          runtimeimage: mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2022
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Docker Build
+      run: |
+        docker build -f Dockerfile --build-arg RUNTIME_IMAGE=${{ matrix.runtimeimage }} .
