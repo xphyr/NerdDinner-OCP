@@ -31,14 +31,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Login to GHCR.io
-      uses: docker/login-action@v1
+      uses: docker/login-action@v2
       with:
         username: ${{ env.GHCR_REGISTRY_USER }}
         password: ${{ env.GHCR_REGISTRY_PASSWORD }}
         registry: ${{ env.GHCR_IMAGE_REGISTRY }}
     - name: Docker Build
       run: |
-        docker build -f Dockerfile --build-arg RUNTIME_IMAGE=${{ matrix.runtimeimage }} .
+        docker build -f Dockerfile --build-arg RUNTIME_IMAGE=${{ matrix.runtimeimage }} -t ${{ matrix.tag }}  .
     - name: Docker Push
       run: |
         docker push ${{ matrix.tag }}
