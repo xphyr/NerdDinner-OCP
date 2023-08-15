@@ -7,6 +7,11 @@ on:
     branches:
     - main
 
+env:
+  GHCR_IMAGE_REGISTRY: ghcr.io
+  GHCR_REGISTRY_USER: ${{ github.actor }}
+  GHCR_REGISTRY_PASSWORD: ${{ github.token }}
+
 jobs:
   build-containers:
     name: Build Containers
@@ -18,11 +23,22 @@ jobs:
         include:
         - os: windows-2019
           runtimeimage: mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2019
+          tag: ghcr.io/xphyr/nerddinner:latest-windows-ltsc2019-amd64
         - os: windows-2022
           runtimeimage: mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2022
+          tag: ghcr.io/xphyr/nerddinner:latest-windows-ltsc2022-amd64
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+    - name: Login to GHCR.io
+      uses: docker/login-action@v1
+      with:
+        username: ${{ env.GHCR_REGISTRY_USER }}
+        password: ${{ env.GHCR_REGISTRY_PASSWORD }}
+        registry: ${{ env.GHCR_IMAGE_REGISTRY }}
     - name: Docker Build
       run: |
         docker build -f Dockerfile --build-arg RUNTIME_IMAGE=${{ matrix.runtimeimage }} .
+    - name: Docker Push
+      run: |
+        docker push ${{ matrix.tag }}
